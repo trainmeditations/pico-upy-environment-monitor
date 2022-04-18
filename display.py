@@ -40,7 +40,6 @@ class DisplayAdapter:
         d.text("Humi: "+str(hum), 0, 54)
         d.show()
         
-        
     def show(self, time):
         self._sleepTimer.deinit()
         self._display.poweron()
@@ -54,4 +53,3 @@ class DisplayAdapter:
         Timer(period=250,
               mode=Timer.ONE_SHOT,
               callback=lambda _: pin.irq(trigger=Pin.IRQ_RISING, handler=self.dispButtonHandler))
-
