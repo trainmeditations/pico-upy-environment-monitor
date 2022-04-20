@@ -1,4 +1,5 @@
 from machine import Timer, Pin
+from micropython import schedule
 
 class DisplayAdapter:
     """Manages display devices"""
@@ -52,4 +53,7 @@ class DisplayAdapter:
         self.show(self._showTime)
         Timer(period=250,
               mode=Timer.ONE_SHOT,
-              callback=lambda _: pin.irq(trigger=Pin.IRQ_RISING, handler=self.dispButtonHandler))
+              callback=lambda _: pin.irq(trigger=Pin.IRQ_RISING,
+                                         handler=lambda a:schedule(self.dispButtonHandler, a)
+                                         )
+              )

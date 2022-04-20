@@ -1,19 +1,18 @@
+from machine import Timer
+from micropython import schedule
 from env_sensors import getCombinedValues
-from machine import Timer, RTC
+from logger import EnvLogger
 
-#oledDisplay.display_logo()
-#dispButton.irq(trigger=Pin.IRQ_RISING, handler=oledDisplay.dispButtonHandler)
+#logtime=5*60*1000
+logtime=30000
 
-LOGFILE="data.csv"
+envLogger=EnvLogger("log.csv")
 
-def writeCSV(fields,file):
-    print(*fields, sep=",", file=file)
+def logValues(_):
+    readings=getCombinedValues()
+    oledDisplay.displaySensors(*readings)
+    oledDisplay.show(1000)
+    envLogger.logValues(readings)
 
-def writeHeader(file):
-    writeCSV(("Timestamp","Temperature","Pressure","Humidity"), file)
-
-def showValues(_):
-    oledDisplay.displaySensors(*getCombinedValues())
-    oledDisplay.show(10000)
-    
-logTimer=Timer(period=5*60*1000, mode=Timer.PERIODIC, callback=showValues)
+logTimer=Timer(period=logtime, mode=Timer.PERIODIC,
+               callback=lambda a:schedule(logValues,a))

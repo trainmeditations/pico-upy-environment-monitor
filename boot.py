@@ -23,7 +23,8 @@ oledDisplay = DisplayAdapter(display=oled)
 #before here
 oledDisplay.display_logo()
 
-dispButton.irq(trigger=Pin.IRQ_RISING, handler=oledDisplay.dispButtonHandler)
+dispButton.irq(trigger=Pin.IRQ_RISING,
+               handler=lambda a:micropython.schedule(oledDisplay.dispButtonHandler, a))
 
 #or sleep here (20ms not long enough)
 time.sleep_ms(100)
