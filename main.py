@@ -2,9 +2,11 @@ from machine import Timer
 from micropython import schedule
 from env_sensors import getCombinedValues
 from logger import EnvLogger
+#explicit import of oledDisplay to allow import of main from REPL
+from boot import oledDisplay
 
-#logtime=5*60*1000
-logtime=30000
+#5 minutes
+logtime=5*60*1000
 
 envLogger=EnvLogger("log.csv")
 
@@ -14,5 +16,9 @@ def logValues(_):
     oledDisplay.show(1000)
     envLogger.logValues(readings)
 
-logTimer=Timer(period=logtime, mode=Timer.PERIODIC,
-               callback=lambda a:schedule(logValues,a))
+def startLogging():
+    logValues(None)
+    logTimer=Timer(period=logtime, mode=Timer.PERIODIC,
+                   callback=lambda a:schedule(logValues,a))
+
+startLogging()

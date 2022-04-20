@@ -1,5 +1,4 @@
 import time
-starttime=time.time()
 from machine import Timer, Pin, I2C
 from ssd1306 import SSD1306_I2C
 from display import DisplayAdapter
@@ -18,7 +17,7 @@ dispClockI2C = I2C(1, freq=400000, sda=Pin(18), scl=Pin(19))
 oled = SSD1306_I2C(128, 64, dispClockI2C)
 oled.poweroff()
 
-oledDisplay = DisplayAdapter(display=oled)
+oledDisplay = DisplayAdapter(oled)
 
 #before here
 oledDisplay.display_logo()
