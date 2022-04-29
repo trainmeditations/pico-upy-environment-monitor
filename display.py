@@ -4,13 +4,11 @@ from micropython import schedule
 class DisplayAdapter:
     """Manages display devices"""
     
-    _sleepTimer=Timer()
-    _display=None
     _showTime=5000
-    _rtc=None
+    _rtc=RTC()
 
     def __init__(self, display, showTime=0):
-        self._rtc=RTC()
+        self._sleepTimer=Timer()
         self._display=display
         if showTime > 0:
             self._showtime=showTime
@@ -40,12 +38,15 @@ class DisplayAdapter:
         d.text("Humi: "+str(hum), 0, 54)
         d.show()
         
+    def _poweroffTimerHandler(self, _):
+        self._display.poweroff()
+    
     def show(self, time):
         self._sleepTimer.deinit()
         self._display.poweron()
         self._sleepTimer.init(period=time,
                          mode=Timer.ONE_SHOT,
-                         callback=lambda _:self._display.poweroff())
+                         callback=lambda a:schedule(self._poweroffTimerHandler, a))
         
     def dispButtonHandler(self, pin):
         pin.irq(handler=None)
@@ -53,6 +54,4 @@ class DisplayAdapter:
         Timer(period=250,
               mode=Timer.ONE_SHOT,
               callback=lambda _: pin.irq(trigger=Pin.IRQ_RISING,
-                                         handler=lambda a:schedule(self.dispButtonHandler, a)
-                                         )
-              )
+                                         handler=lambda a:schedule(self.dispButtonHandler, a)))
