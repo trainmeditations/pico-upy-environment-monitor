@@ -1,5 +1,6 @@
 import time
 from machine import Timer, Pin, I2C
+from micropython import schedule
 from ssd1306 import SSD1306_I2C
 from PiicoDev_SSD1306 import create_PiicoDev_SSD1306
 from display import DisplayAdapter
@@ -32,8 +33,22 @@ oledDisplayP.display_logo()
 oledDisplay.show(5000)
 oledDisplayP.show(5000)
 
+displays=[oledDisplay,oledDisplayP]
+
+def _dispButtonHandler(pin):
+    pin.irq(handler=None)
+    for display in displays:
+        display.show(display._showTime)
+    Timer(period=250,
+          mode=Timer.ONE_SHOT,
+          callback=lambda _: pin.irq(trigger=Pin.IRQ_RISING,
+                                     handler=lambda pin:schedule(_dispButtonHandler, pin)))
 dispButton.irq(trigger=Pin.IRQ_RISING,
-               handler=lambda a:micropython.schedule(oledDisplay.dispButtonHandler, a))
+               handler=lambda pin:micropython.schedule(_dispButtonHandler, pin))
+
+
+#dispButton.irq(trigger=Pin.IRQ_RISING,
+#               handler=lambda a:micropython.schedule(oledDisplayP.dispButtonHandler, a))
 
 #or sleep here (20ms not long enough)
 #time.sleep_ms(100)
