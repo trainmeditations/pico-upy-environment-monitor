@@ -41,7 +41,7 @@ class DisplayAdapter:
     def _poweroffTimerHandler(self, _):
         self._display.poweroff()
     
-    def show(self, time):
+    def show(self, time=_showTime):
         self._sleepTimer.deinit()
         self._display.poweron()
         self._sleepTimer.init(period=time,

@@ -30,8 +30,8 @@ oledDisplayP = DisplayAdapter(oledP)
 oledDisplay.display_logo()
 oledDisplayP.display_logo()
 
-oledDisplay.show(5000)
-oledDisplayP.show(5000)
+oledDisplay.show()
+oledDisplayP.show()
 
 displays=[oledDisplay,oledDisplayP]
 
