@@ -1,11 +1,10 @@
 import time
-from machine import Timer, Pin, I2C
-from micropython import schedule
-from ssd1306 import SSD1306_I2C
+from machine import Timer, Pin
+from micropython import schedule, alloc_emergency_exception_buf
+alloc_emergency_exception_buf(100)
+#from ssd1306 import SSD1306_I2C
 from PiicoDev_SSD1306 import create_PiicoDev_SSD1306
 from display import DisplayAdapter
-import micropython
-micropython.alloc_emergency_exception_buf(100)
 
 #Devices
 pico_led = Pin(25, Pin.OUT)
@@ -16,8 +15,9 @@ dispButton = Pin(22, Pin.IN, Pin.PULL_DOWN)
 
 #Display
 #dispI2C = I2C(1, freq=400000, sda=Pin(18), scl=Pin(19)) #separate I2C bus
-dispI2C = I2C(0)
-oled = SSD1306_I2C(128, 64, dispI2C)
+#dispI2C = I2C(0, freq=400000)
+#oled = SSD1306_I2C(128, 64, dispI2C)
+oled = create_PiicoDev_SSD1306()
 oled.poweroff()
 
 oledP = create_PiicoDev_SSD1306(addr=0x3D)
@@ -27,10 +27,15 @@ oledDisplay = DisplayAdapter(oled)
 oledDisplayP = DisplayAdapter(oledP)
 
 #before here
-oledDisplay.display_logo()
+# for x in range(1,12):
+#     oledDisplay.printLine(str(x))
+#     oledDisplay.show()
+#     time.sleep_ms(1000)
+oledDisplay.printLine("Displays Setup")
+oledDisplay.show()
+
 oledDisplayP.display_logo()
 
-oledDisplay.show()
 oledDisplayP.show()
 
 displays=[oledDisplay,oledDisplayP]
@@ -44,9 +49,10 @@ def _dispButtonHandler(pin):
           callback=lambda _: pin.irq(trigger=Pin.IRQ_RISING,
                                      handler=lambda pin:schedule(_dispButtonHandler, pin)))
 dispButton.irq(trigger=Pin.IRQ_RISING,
-               handler=lambda pin:micropython.schedule(_dispButtonHandler, pin))
+               handler=lambda pin:schedule(_dispButtonHandler, pin))
 
-
+oledDisplay.printLine("Button Linked")
+oledDisplay.show()
 #dispButton.irq(trigger=Pin.IRQ_RISING,
 #               handler=lambda a:micropython.schedule(oledDisplayP.dispButtonHandler, a))
 

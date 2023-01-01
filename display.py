@@ -4,10 +4,11 @@ from micropython import schedule
 class DisplayAdapter:
     """Manages display devices"""
     
-    _showTime=5000
+    _showTime=10000
     _rtc=RTC()
 
     def __init__(self, display, showTime=0):
+        self._currentLine=0
         self._sleepTimer=Timer()
         self._display=display
         if showTime > 0:
@@ -47,6 +48,19 @@ class DisplayAdapter:
         self._sleepTimer.init(period=time,
                          mode=Timer.ONE_SHOT,
                          callback=lambda a:schedule(self._poweroffTimerHandler, a))
+    
+    #print text line by line
+    #seven lines (0-6) of text plus 1 pixel between lines
+    def printLine(self, line):
+        d=self._display
+        printLine=self._currentLine if self._currentLine<6 else 6
+        printX=1+printLine*9
+        if (self._currentLine>6):
+            d.scroll(0,-9)
+            d.fill_rect(0, printX, 128, 8, 0)
+        d.text(line, 0, printX)
+        self._currentLine+=1
+        d.show()
         
     def dispButtonHandler(self, pin):
         pin.irq(handler=None)
